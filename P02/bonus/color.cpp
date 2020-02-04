@@ -10,10 +10,10 @@
    std:: string Color::colorize(std::string text ){
 	  return  "\033[38;2;" + std::to_string(_red) + ";" + std::to_string(_green) + ";" + std::to_string(_blue) + ";177m" + text + "\033[0m";   
 	
-    std::int Color::magnitude(){
+    int Color::magnitude(){
 		return 0.21*_red + 0.72*_green + 0.07* _blue;
 		
-    std::int Color::compare(int rhs)
+    int Color::compare(int rhs)
 	{
 		if{
 			(this.magnitude() < rhs.magnitude())
