@@ -19,6 +19,8 @@ class Options
 	double cost();
 	virtual std::string to_string()const;
 	friend std::ostream& operator<<(std::ostream& ost, const Options& options);
+	void save(std::ostream& ost);
+	Options(std::istream& ist);
 	
 };
 #endif	

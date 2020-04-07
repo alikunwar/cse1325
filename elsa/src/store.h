@@ -2,7 +2,7 @@
 #define __STORE_H
 
 #include "customer.h"
-#include "options.h"
+#include "option.h"
 #include "desktop.h"
 #include "order.h"
 #include "string.h"
@@ -26,6 +26,10 @@ class Store {
     void add_desktop(int desktop, int order); // to order
     int num_orders();
     Order& order(int index);
+	void save(std::ostream& ost);
+	Store();
+	Store(std::istream& ist);
+	
   private:
     std::vector<Customer> customers;
     std::vector<Options*>  options;

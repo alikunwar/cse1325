@@ -17,5 +17,9 @@ class Customer
 	public:
 	Customer(std::string name,std::string phone, std::string email);
 	friend std::ostream& operator<<(std::ostream& ost, const Customer& customer);
+	Customer(std::istream& ist);
+	void save(std::ostream& ost);
+	
 };
 #endif	
+	

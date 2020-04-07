@@ -2,7 +2,7 @@
 #ifndef _DESKTOP_H
 #define _DESKTOP_H
 
-#include "options.h"
+#include "option.h"
 #include <iostream>
 #include <exception>
 #include <string>
@@ -21,5 +21,7 @@ class Desktop
 	void add_option(Options& option);
 	double price();
 	friend std::ostream& operator<<(std::ostream& ost, const Desktop& desktop);
+	void save(std::ostream& ost);
+	Desktop(std::istream& ist);
 };
 #endif	
