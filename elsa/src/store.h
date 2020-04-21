@@ -9,6 +9,7 @@
 
 class Store {
   public:
+    Store();
     void add_customer(Customer& customer);
     int num_customers();
     Customer& customer(int index);
@@ -26,15 +27,15 @@ class Store {
     void add_desktop(int desktop, int order); // to order
     int num_orders();
     Order& order(int index);
+	
 	void save(std::ostream& ost);
-	Store();
 	Store(std::istream& ist);
 	
   private:
     std::vector<Customer> customers;
-    std::vector<Options*>  options;
-    std::vector<Desktop>  desktops;
-    std::vector<Order>    orders;
+    std::vector<Options*> options;
+    std::vector<Desktop> desktops;
+    std::vector<Order> orders;
 };
 
 #endif

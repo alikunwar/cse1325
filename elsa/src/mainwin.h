@@ -16,6 +16,7 @@ class Mainwin : public Gtk::Window
 	void on_save_as_click();
 	void on_open_click();
 	void on_quit_click();
+	void on_more_egg_click();
 	void on_view_peripheral_click();
 	void on_view_desktop_click();
 	void on_view_order_click();
@@ -30,12 +31,15 @@ class Mainwin : public Gtk::Window
 	int get_int(std::string prompt);
 	void set_data(std::string s);
 	void set_msg(std::string s);
+	void on_ram_click();
+	void on_other_click();
 	
 	private:
 	Store *store;
 	Gtk:: Label *data;
 	Gtk:: Label *msg;
 	std::string filename;
+	 Gtk::ComboBoxText* comboboxtext;
 	
 };
 #endif

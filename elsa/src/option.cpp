@@ -1,4 +1,5 @@
 #include "option.h"
+#include "ram.h"
 
 Options::Options(std::string name,double cost): _name{name}, _cost{cost}{}
 
@@ -11,27 +12,30 @@ double Options::cost()
   return _cost;
 }
 
-std::string Options::to_string() const
+std::string Options::to_string()const
 {
-return _name +"($" + std::to_string(_cost) + ")";
+  return _name +"($" + std::to_string(_cost) + ")";
 }
 
-std::ostream& operator<<(std::ostream& ost, const Options& options)
-{
- ost <<options.to_string();
-	 return ost;
+
+
+std::ostream& operator<<(std::ostream& ost, const Options& options) {
+   ost<<options.to_string();
+   return ost;
 }
+
 
 Options::Options(std::istream& ist)
 {
 	std::getline(ist, _name);
-	ist >> _cost>>"\n";
+	ist >> _cost;
+    ist.ignore(32767, '\n');
 	
 }
 
 
-void Options::save(std::ostream& ost)
+void Options::save(std::ostream& ost)const
 {
 	
-	ost << _name << "\n" << _cost << "\n";
+	ost << _name << "\n" <<std::to_string(_cost) << "\n";
 }

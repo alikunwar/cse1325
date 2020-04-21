@@ -1,6 +1,6 @@
 #include "desktop.h"
 
-
+Desktop::Desktop() {}
 void Desktop::add_option(Options& option)
 {
   options.push_back(&option);
@@ -8,13 +8,13 @@ void Desktop::add_option(Options& option)
 
 double Desktop::price()
 {
-    double price= 0;
+    double pr= 0;
     int i;
     for(auto o: options)
     {
-    price += o->cost();
+    pr += o->cost();
     }
- return price;
+ return pr;
 }
 
 
@@ -43,7 +43,7 @@ Desktop::Desktop(std::istream& ist)
 	ist.ignore(32767, '\n');
 	for(int i = 0; i < size; i++)
 	{
-    Options* option = new Options(ist);
-		options.push_back(option);
+   
+		options.push_back(new Options{ist});
 	}
 }

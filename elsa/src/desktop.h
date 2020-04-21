@@ -6,7 +6,7 @@
 #include <iostream>
 #include <exception>
 #include <string>
-#include<vector>
+#include <vector>
 #include <iomanip>
 
 
@@ -18,6 +18,7 @@ class Desktop
 	
 	
 	public:
+	Desktop();
 	void add_option(Options& option);
 	double price();
 	friend std::ostream& operator<<(std::ostream& ost, const Desktop& desktop);

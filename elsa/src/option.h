@@ -17,9 +17,9 @@ class Options
 	Options(std::string name,double cost);
 	virtual ~Options();
 	double cost();
-	virtual std::string to_string()const;
+	virtual std::string to_string() const;
 	friend std::ostream& operator<<(std::ostream& ost, const Options& options);
-	void save(std::ostream& ost);
+	virtual void save(std::ostream& ost) const;
 	Options(std::istream& ist);
 	
 };

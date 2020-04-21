@@ -2,17 +2,18 @@
 #include <iostream> // for std::cerr logging
 #include <string.h>
 #include <sstream>
+#include <fstream>
 
 #include "entrydialog.h"
 
-Mainwin::Mainwin() : filename{"untitled.elsa"}
+Mainwin::Mainwin() : store{nullptr}
 {
 
   // /////////////////
   // G U I   S E T U P
   // /////////////////
 
-  set_default_size(600, 200);
+  set_default_size(900, 400);
   set_title("ELSA");
   Mainwin::filename = "untitled.elsa";
 
@@ -77,11 +78,11 @@ Mainwin::Mainwin() : filename{"untitled.elsa"}
   menuitem_customer->signal_activate().connect([this] { this->on_view_customer_click(); });
   viewmenu->append(*menuitem_customer);
 
-  //           peripheral
-  // Append peripheral to the View menu
-  Gtk::MenuItem *menuitem_peripheral = Gtk::manage(new Gtk::MenuItem("_peripheral", true));
-  menuitem_peripheral->signal_activate().connect([this] { this->on_view_peripheral_click(); });
-  viewmenu->append(*menuitem_peripheral);
+ //         P E R I P H E R A L S
+    // Append Peripheral to the View menu
+    Gtk::MenuItem *menuitem_view_peripheral = Gtk::manage(new Gtk::MenuItem("_Peripheral", true));
+    menuitem_view_peripheral->signal_activate().connect([this] {this->on_view_peripheral_click();});
+    viewmenu->append(*menuitem_view_peripheral);
 
   //           desktop
   // Append desktop to the View menu
@@ -112,12 +113,27 @@ Mainwin::Mainwin() : filename{"untitled.elsa"}
   // Append Peripheral to the Insert menu
   Gtk::MenuItem *menuitem_Peripheral = Gtk::manage(new Gtk::MenuItem("_Peripheral", true));
   menuitem_Peripheral->signal_activate().connect([this] { this->on_insert_peripheral_click(); });
+  Gtk::Menu *var = Gtk::manage(new Gtk::Menu());
+  menuitem_Peripheral->set_submenu(*var);
   insertmenu->append(*menuitem_Peripheral);
+  
+  //Add more menuitems on peripheral
+  //RAM
+
+Gtk::MenuItem *menuitem_ram = Gtk::manage(new Gtk::MenuItem("_RAM", true));
+menuitem_ram->signal_activate().connect([this] {this->on_ram_click();});
+var->append(*menuitem_ram);
+
+//Other
+Gtk::MenuItem *menuitem_other = Gtk::manage(new Gtk::MenuItem("_Other", true));
+menuitem_other->signal_activate().connect([this]{this->on_other_click();});
+var->append(*menuitem_other);
+  
 
   //           Desktop
   // Append Desktop to the Desktop menu
   Gtk::MenuItem *menuitem_Desktop = Gtk::manage(new Gtk::MenuItem("_Desktop", true));
-  menuitem_Desktop->signal_activate().connect([this] { this->on_insert_desktop_click(); });
+  menuitem_Desktop->signal_activate().connect([this] { this->on_insert_desktop_click();});
   insertmenu->append(*menuitem_Desktop);
 
   //           Order
@@ -138,6 +154,12 @@ Mainwin::Mainwin() : filename{"untitled.elsa"}
   Gtk::MenuItem *menuitem_about = Gtk::manage(new Gtk::MenuItem("_About", true));
   menuitem_about->signal_activate().connect([this] { this->on_about_click(); });
   helpmenu->append(*menuitem_about);
+  
+  //           E A S T E R
+    // Append Easter Egg to the Help menu
+    Gtk::MenuItem *menuitem_more = Gtk::manage(new Gtk::MenuItem("_More", true));
+    menuitem_more->signal_activate().connect([this] {this->on_more_egg_click();});
+    helpmenu->append(*menuitem_more);
 
   // Data   D I S P L A Y
   // Provide a text entry box to show the remaining sticks
@@ -145,6 +167,7 @@ Mainwin::Mainwin() : filename{"untitled.elsa"}
   data->set_hexpand(true);
   data->set_vexpand(true);
   vbox->add(*data);
+  data->set_text("Welcome to ELSA!");
   store = new Store{};
 
   // S T A T U S   B A R   D I S P L A Y ////////////////////////////////////
@@ -152,8 +175,7 @@ Mainwin::Mainwin() : filename{"untitled.elsa"}
 
   msg = Gtk::manage(new Gtk::Label());
   msg->set_hexpand(true);
-  vbox->pack_start(*msg, Gtk::PACK_SHRINK, 0);
-
+  
   vbox->show_all(); // make everything visible
 }
 
@@ -171,8 +193,9 @@ Mainwin::~Mainwin() {}
 void Mainwin::on_new_store_click()
 {
     delete store;
-	store = new Store{};
-	set_msg("Welvome to new store");
+	store = new Store;
+	filename = "untitled.elsa";
+	set_msg("Welcome to new store");
 }
 
 
@@ -204,53 +227,54 @@ void Mainwin::on_save_as_click()
   if (result == 1) 
 	{
 		filename = dialog.get_filename();
-		
+		on_save_click();
 	}
 }
 
 
 void Mainwin::on_open_click()
 {
+ 
   Gtk::FileChooserDialog dialog("Please choose a file",
-                                Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
-  dialog.set_transient_for(*this);
+          Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
+    dialog.set_transient_for(*this);
 
-  auto filter_any = Gtk::FileFilter::create();
-  filter_any->set_name("Any files");
-  filter_any->add_pattern("*");
-  dialog.add_filter(filter_any);
+    auto filter_elsa = Gtk::FileFilter::create();
+    filter_elsa->set_name("ELSA files");
+    filter_elsa->add_pattern("*.elsa");
+    dialog.add_filter(filter_elsa);
+ 
+    auto filter_any = Gtk::FileFilter::create();
+    filter_any->set_name("Any files");
+    filter_any->add_pattern("*");
+    dialog.add_filter(filter_any);
 
-  
-   dialog.set_filename("untitled.elsa");
-   
-   
-  
-  dialog.add_button("_Cancel", 0);
-  dialog.add_button("_Open", 1);
+    dialog.set_filename(filename);
 
-  int result = dialog.run();
+    //Add response buttons the the dialog:
+    dialog.add_button("_Cancel", 0);
+    dialog.add_button("_Open", 1);
 
-  
-   if (result == 1) 
-	{
+    int result = dialog.run();
 
-		filename = dialog.get_filename();
-		try 
-		{
-			delete store;
-			std::ifstream ifs{filename};
-			store = new Store{ifs};
-			
-			std::ostringstream oss;
-			oss << "Added:\n" << store->num_customers() << " Customers\n" << store->num_options() << " Options\n" <<store->num_desktops() << " Desktops\n" << store->num_orders() << " Orders\n" << "\n";
-			set_data(oss.str());
-		} 
-		catch (std::exception& e) 
-		{
-			Gtk::MessageDialog{*this, "Unable to open file"}.run();
-		}
-	}
+    if (result == 1) {
+        try {
+            delete store; store = nullptr;
+            filename = dialog.get_filename();
+            std::ifstream ifs{filename};
+            store = new Store{ifs};
+            if(!ifs) throw std::runtime_error{"Invalid file contents"};
+            on_view_customer_click();
+            set_msg("Loaded " + filename);
+        } catch (std::exception& e) {
+            std::string err = "Unable to open store from " + filename + " (" + e.what() + " )";
+            on_new_store_click();
+            set_msg("<b>ERROR:</b>: " + err);
+            Gtk::MessageDialog{*this, err, false, Gtk::MESSAGE_WARNING}.run();
+        }
+    }
 }
+
 
 
 
@@ -266,6 +290,7 @@ void Mainwin::on_save_click()
    } 
    catch (std::exception& e) 
    {
+            
             Gtk::MessageDialog{*this, "Unable to open game"}.run();
    }
 }
@@ -279,21 +304,16 @@ void Mainwin::on_quit_click()
 
 
 
-void Mainwin::on_view_peripheral_click()
-{
-  std::ostringstream oss;
-  std::string x = "<b> Peripherals </b>";
-  oss << x << "\n";
-  set_data(oss.str());
-
-  for (int i = 0; i < store->num_options(); ++i)
-  {
-    oss << "\n"
-        << i << ") " << store->option(i) << "\n";
-  }
-  set_data(oss.str());
+void Mainwin::on_view_peripheral_click() { 
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2);
+    oss << "<big><b>Peripherals</b></big><tt>\n\n";
+    for(int i=0; i<store->num_options(); ++i) 
+        oss << i << ") " << store->option(i) << "\n";
+    oss<<"</tt>";
+    set_data(oss.str());
+    set_msg("");
 }
-
 
 
 
@@ -355,14 +375,118 @@ void Mainwin::on_view_customer_click()
 
 
 
+void Mainwin::on_insert_customer_click()
+{
+   Gtk::Dialog dialog{"Customer", *this};
+
+    Gtk::Grid grid;
+  
+    Gtk::Label l_name{"Name"};
+    Gtk::Entry e_name;               // Accept any line of text
+    grid.attach(l_name, 0, 1, 1, 1);
+    grid.attach(e_name, 1, 1, 2, 1);
+	
+	Gtk::Label l_phone{"Phone"};
+    Gtk::Entry e_phone;               // Accept any line of text
+    grid.attach(l_phone, 0, 2, 1, 1);
+    grid.attach(e_phone, 1, 2, 2, 1);
+	dialog.get_content_area()->add(grid);
+ 
+    Gtk::Label l_email{"Email"};
+    Gtk::Entry e_email;               // Accept any line of text
+    grid.attach(l_email, 0, 3, 1, 1);
+    grid.attach(e_email, 1, 3, 2, 1);
+	dialog.get_content_area()->add(grid);
+   
+    dialog.add_button("Select", Gtk::RESPONSE_OK);
+    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+    // NOTE: The x in the title bar to close the dialog is Gtk::RESPONSE_DELETE_EVENT
+    int response;
+
+    // It's ready!  Now display it to the user.
+    dialog.show_all();
+
+    while((response = dialog.run()) == Gtk::RESPONSE_OK) {
+
+        // Data validation: If the user doesn't enter a name for the animal, complain
+        if (e_name.get_text().size() == 0) {e_name.set_text("*REQUIRED*"); continue;}
+        if (e_phone.get_text().size() == 0) {e_phone.set_text("*REQUIRED*"); continue;}
+		if (e_email.get_text().size() == 0) {e_email.set_text("*REQUIRED*"); continue;}
+        // Otherwise, extract the information entered into the various widgets
+        std::string name = e_name.get_text(); 
+		std::string phone = e_phone.get_text();
+        std::string email= e_email.get_text();
+		Customer customer{name,phone,email};
+		store->add_customer(customer);
+		Gtk::MessageDialog{*this, "You selected a " + name + " ( " + phone + " " + email + " )"}.run();
+		break;
+
+       
+    }
+	 msg->set_text("New Customer Added!");
+}
+
+
 void Mainwin::on_insert_peripheral_click()
 {
-  std::string name = get_string("Name of the peripheral");
-  double cost = get_double(" Cost in dollar $");
 
-  Options option{name, cost};
-  store->add_option(option);
 }
+void Mainwin::on_ram_click()
+{
+EntryDialog ed1{*this, "Name of the partb you want to buy"};
+ed1.set_text("Name");
+ed1.run();
+std::string name = ed1.get_text();
+
+
+EntryDialog ed2{*this, "Cost of the product($)" };
+ed2.run();
+std::string price = ed2.get_text();
+
+double pr;
+pr = std::stod(price);
+
+EntryDialog ed3{*this, "Enter memory of RAM" };
+ed3.run();
+std::string gb = ed3.get_text();
+int x= std::stoi(gb);
+ 
+try 
+{
+
+} 
+catch(std::exception& e) 
+{
+std::cerr << "#### INVALID OPTION ####\n\n";
+}
+
+msg->set_text("Ram Added!");
+}
+
+
+
+void Mainwin::on_other_click()
+{
+EntryDialog ed1{*this, "Please select the part"};
+ed1.set_text("name");
+ed1.run();
+
+std::string name = ed1.get_text();
+EntryDialog ed2{*this, "Cost of the part" };
+ed2.run();
+std::string newprice = ed2.get_text();
+double price = std::stod(newprice);
+
+Options *y = new Options(name,price);
+try
+ {
+} 
+catch(std::exception& e) 
+{
+std::cerr << "#### INVALID OPTION ####\n\n";
+}
+}
+
 
 
 
@@ -385,7 +509,7 @@ void Mainwin::on_insert_order_click()
     store->add_desktop(desktop, order);
   }
 
-  on_view_order_click();
+  //on_view_order_click();
   oss << "\n++++ Order Placed ++++\n"
       << store->order(order);
 }
@@ -417,14 +541,6 @@ void Mainwin::on_insert_desktop_click()
   }
 }
 
-void Mainwin::on_insert_customer_click()
-{
-  std::string name = get_string("Name of the customer");
-  std::string phone = get_string("Phone number (xxx-xxx-xxxx) ");
-  std::string email = get_string("Email of the customer (xxx@domain.com) ");
-  Customer customer{name, phone, email};
-  store->add_customer(customer);
-}
 
 void Mainwin::on_about_click()
 {
@@ -441,6 +557,20 @@ std::string Mainwin::get_string(std::string prompt)
   ed.set_text("");
   ed.run();
   return ed.get_text();
+}
+
+void Mainwin::on_more_egg_click() {
+    Customer c{"Alisha", "469-234-4564", "bugs@loony.tunes"};          store->add_customer(c);
+    c = Customer{"Rajiv", "682-607-4567", "helen@incredibles.movie"}; store->add_customer(c);
+    c = Customer{"Nischal", "469-009-6547", "circus@bugs.life"};     store->add_customer(c);
+    
+
+    Options o{"CPU: 2.6 GHz Xeon 6126T", 2423.47};         store->add_option(o);
+    o = Options{"CPU: 2.4 GHz Core i7-8565U", 388.0};      store->add_option(o);
+    o = Options{"CPU: 2.2 GHz AMD Opteron", 37.71};        store->add_option(o);
+    o = Options{"2 GB RAM", 17.76};                        store->add_option(o);
+    o = Options{"4 GB RAM", 22.95};                        store->add_option(o);
+    o = Options{"8 GB RAM", 34.99};                        store->add_option(o);
 }
 
 
