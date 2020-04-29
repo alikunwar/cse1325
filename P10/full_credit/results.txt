@@ -1,0 +1,94 @@
+QUESTION 1: Which value of slices did you select for your machine to solve the polynomial with 1 thread with at least a 30 second runtime: 
+= 100000000
+
+QUESTION 2: Provide the output of ``time polyb nn`` (or the improved version in the lecture video, if you prefer) for the following values of nn threads shown below:
+
+Example Timing:
+
+real	0m22.551s
+user	0m22.524s
+sys	0m0.012s
+
+
+YOUR Timing:
+
+Without threads:
+real	0m0.012s
+user	0m0.005s
+sys	0m0.001s
+
+
+
+
+With 2 threads:
+
+real	0m7.143s
+user	0m14.229s
+sys     0m0.008s
+
+
+
+
+
+
+With 4 threads:
+
+real	0m2.436s
+user	0m7.089s
+sys	0m0.000s
+
+
+
+
+With 6 threads:
+
+real	0m1.694s
+user	0m4.951s
+sys	0m0.008s
+
+
+
+
+
+With 8 threads:
+
+real	0m1.302s
+user	0m3.827s
+sys	0m0.000s
+
+
+
+With 12 threads:
+
+real	0m0.844s
+user	0m2.481s
+sys	0m0.016s
+
+
+
+
+
+With 24 threads:
+
+real	0m0.469s
+user	0m1.360s
+sys	0m0.012s
+
+
+
+
+QUESTION 3: Does adding more threads continue to speed up the program? Do more threads ever slow down the program slightly?  Why or why not?
+= Yes, adding more threads continue to speed up the program. It can slow the program slightly, but in this case  threads have to wait less for their turn so they are able to finish their work faster.And as number of thread increases
+the perfomance time decreases respectively.
+
+
+
+
+QUESTION 4: Does adding more threads increase the "system load", or is it constant regardless of the number of threads?  Why?
+
+= yes.  The two threads will still share internal microarchitecture components called execution units. This can result in up to 30% more processing performance in a single socket system. 
+In dual socket systems, hyper-threading can provide up to a 15% improvement. If performance tuning is critical in your environment, testing performance both with and without hyper-threading could be important.
+
+
+
+
